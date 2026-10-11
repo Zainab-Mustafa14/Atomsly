@@ -22,7 +22,7 @@ Atmosly is a responsive weather forecast website that provides real-time weather
 
 ## 🌐 Live Demo
 
-[View Atmosly Live](https://atmosly-beta.vercel.app/))
+ [View Atmosly Live](https://atmosly-beta.vercel.app/)
 
 ## 📸 Project Preview
 
@@ -33,7 +33,7 @@ Add a screenshot of your website here to showcase its design and weather animati
 1. Clone the repository:
 
    ```bash
-   git clone YOUR-GITHUB-REPOSITORY-URL
+   git clone (https://github.com/Zainab-Mustafa14/Atomsly)
    ```
 
 2. Open the project folder:
