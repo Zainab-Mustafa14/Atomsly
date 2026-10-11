@@ -33,7 +33,7 @@ Add a screenshot of your website here to showcase its design and weather animati
 1. Clone the repository:
 
    ```bash
-   git clone (https://github.com/Zainab-Mustafa14/Atomsly)
+   git clone https://github.com/Zainab-Mustafa14/Atomsly
    ```
 
 2. Open the project folder:
