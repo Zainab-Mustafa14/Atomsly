@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Put your OpenWeather API key between the quotes.
   // WARNING: anything in frontend JavaScript can be read by visitors.
-  const API_KEY = "742c1930fb80074c4d91f1828e54b5be";
+  const API_KEY = "your-api-key";
 
   const BASE_URL = "https://api.openweathermap.org/data/2.5";
   const ICON_URL = "https://openweathermap.org/img/wn/";
