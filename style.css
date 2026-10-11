@@ -11,9 +11,7 @@
    ========================================================== */
 
 
-/* ---------- 0. REGISTERED PROPERTIES ----------
-   Registering colour variables lets the browser fade smoothly between
-   them. Browsers without support simply switch colours instantly. */
+/* ---------- 0. REGISTERED PROPERTIES -------- */
 @property --clear-top    { syntax: "<color>"; inherits: true; initial-value: #7db4f2; }
 @property --clear-mid    { syntax: "<color>"; inherits: true; initial-value: #bcd8f6; }
 @property --clear-bottom { syntax: "<color>"; inherits: true; initial-value: #ffe5c6; }
@@ -168,12 +166,7 @@ body {
 }
 
 
-/* ---------- 3. SKY SCENES ----------
-   The whole sky sits behind the page and never receives clicks.
-   script.js puts these classes on <body>:
-     wx-clear | wx-partly | wx-clouds | wx-rain | wx-storm | wx-snow | wx-fog
-     temp-hot | temp-warm | temp-mild | temp-cold
-     is-night, is-dark-sky, has-weather                                    */
+/* ---------- 3. SKY SCENES ----------*/
 .sky {
   position: fixed;
   inset: 0;
@@ -1377,10 +1370,7 @@ body.is-night .fx-fog {
 }
 
 
-/* ---------- 11. DARK-SKY ADJUSTMENTS ----------
-   Rain, storms and every night scene are dark. Text that sits directly on
-   the sky (header, forecast heading, footer) switches to light colours, and
-   the glass cards become a little more opaque so their text stays readable. */
+/* ---------- 11. DARK-SKY ADJUSTMENTS ---------- */
 body.is-dark-sky {
   --glass-bg: rgba(255, 255, 255, 0.78);
   --glass-bg-strong: rgba(255, 255, 255, 0.86);
@@ -1431,7 +1421,6 @@ body.is-dark-sky {
 
 
 /* ---------- 12. ENTRANCE ANIMATION ---------- */
-/* "backwards" applies the start state only, so hover effects keep working */
 .search-form,
 .current-weather,
 .forecast-heading,
@@ -1559,9 +1548,6 @@ body.is-dark-sky {
 
 /* ---------- 14. ACCESSIBILITY PREFERENCES ---------- */
 
-/* Reduced motion: no animations or transitions. The sky becomes a calm
-   still picture: clouds sit at fixed positions, and rain, snow and stars
-   are shown as a static, lighter pattern. Heat shimmer is removed. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
