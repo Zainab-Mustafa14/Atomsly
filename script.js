@@ -18,8 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- 1. CONFIGURATION ---------- */
 
-  // Put your OpenWeather API key between the quotes.
-  // WARNING: anything in frontend JavaScript can be read by visitors.
   const API_KEY = "your-api-key";
 
   const BASE_URL = "https://api.openweathermap.org/data/2.5";
@@ -370,9 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* ---------- 8. ATMOSPHERE (weather-reactive background) ----------
-     Turns the REAL API response into classes on <body> and switches the
-     matching effect layers on. CSS does all the drawing. */
+  /* ---------- 8. ATMOSPHERE (weather-reactive background) ---------- */
 
   const WEATHER_GROUPS = ["clear", "partly", "clouds", "rain", "storm", "snow", "fog"];
   const TEMP_BANDS = ["hot", "warm", "mild", "cold"];
@@ -547,8 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* ---------- 9. PARTICLES (rain, snow, stars) ----------
-     Created once. CSS controls which are visible and how they move. */
+  /* ---------- 9. PARTICLES (rain, snow, stars) --------- */
 
   const random = (min, max) => Math.random() * (max - min) + min;
 
