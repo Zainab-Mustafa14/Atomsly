@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Atmosly is a simple weather forecast website. Search for any city to see current weather, humidity, wind speed, and a 5-day forecast.">
+  <meta name="theme-color" content="#a9c4ff">
+  <title>Atmosly | Weather Forecast</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- ===== WEATHER-REACTIVE SKY (decorative only) ===== -->
+  <div class="sky" aria-hidden="true">
+    <div class="sky-base"></div>
+
+    <!-- Background scenes: one is shown per weather group -->
+    <div class="scene scene-clear"></div>
+    <div class="scene scene-partly"></div>
+    <div class="scene scene-clouds"></div>
+    <div class="scene scene-rain"></div>
+    <div class="scene scene-storm"></div>
+    <div class="scene scene-snow"></div>
+    <div class="scene scene-fog"></div>
+    <div class="scene scene-night"></div>
+    <div class="scene-wash"></div>
+
+    <!-- Ambient glows (default sky only, before the first search) -->
+    <div class="sky-glow sky-glow-blue"></div>
+    <div class="sky-glow sky-glow-violet"></div>
+    <div class="sky-glow sky-glow-cyan"></div>
+
+    <!-- Effect layers: script.js switches them on/off with .is-active -->
+    <div class="fx fx-stars" data-fx="stars">
+      <div class="moon"></div>
+    </div>
+
+    <div class="fx fx-sun" data-fx="sun">
+      <div class="sun-wrap">
+        <div class="sun-halo"></div>
+        <div class="sun-rays"></div>
+        <div class="sun-core"></div>
+      </div>
+    </div>
+
+    <div class="fx fx-clouds" data-fx="clouds">
+      <span class="cloud-bank bank-1"></span>
+      <span class="cloud-bank bank-2"></span>
+      <span class="cloud cloud-1"></span>
+      <span class="cloud cloud-2"></span>
+      <span class="cloud cloud-3"></span>
+      <span class="cloud cloud-4"></span>
+      <span class="cloud cloud-5"></span>
+    </div>
+
+    <div class="fx fx-heat" data-fx="heat">
+      <div class="heat-wave"></div>
+      <div class="heat-wave heat-wave-2"></div>
+    </div>
+
+    <div class="fx fx-fog" data-fx="fog">
+      <span class="mist mist-1"></span>
+      <span class="mist mist-2"></span>
+      <span class="mist mist-3"></span>
+    </div>
+
+    <div class="fx fx-particles" data-fx="particles">
+      <div class="sky-particles"></div>
+    </div>
+
+    <div class="fx fx-rain" data-fx="rain" data-intensity="medium"></div>
+    <div class="fx fx-snow" data-fx="snow" data-intensity="medium"></div>
+    <div class="fx fx-lightning" data-fx="lightning"></div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <h1 class="brand">
+      <span class="brand-icon" aria-hidden="true">☀️</span>
+      <span class="brand-name">Atmosly</span>
+    </h1>
+    <p class="tagline">Your weather, at a glance.</p>
+  </header>
+
+  <main class="dashboard">
+
+    <!-- ===== CITY SEARCH ===== -->
+    <section class="search-section" aria-label="City search">
+      <form id="search-form" class="search-form" role="search">
+        <label for="city-input" class="search-label">City Name</label>
+        <div class="search-controls">
+          <input
+            type="text"
+            id="city-input"
+            class="search-input"
+            name="city"
+            placeholder="Enter city Name..."
+            autocomplete="off"
+            aria-describedby="error-message"
+            required
+          >
+          <button type="submit" id="search-button" class="search-button">Search</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== LOADING AND ERROR MESSAGES ===== -->
+    <p id="loading-message" class="message message-loading" role="status" hidden>
+      Checking the weather...
+    </p>
+    <p id="error-message" class="message message-error" role="alert" hidden></p>
+
+    <!-- ===== CURRENT WEATHER CARD ===== -->
+    <section id="current-weather" class="current-weather" aria-labelledby="city-name">
+
+      <div class="current-header">
+        <h2 id="city-name" class="city-name">City Name</h2>
+        <p id="current-date" class="current-date">Date: --</p>
+      </div>
+
+      <div class="current-main">
+        <div id="weather-icon" class="weather-icon" aria-hidden="true">☁️</div>
+        <div class="current-summary">
+          <p id="temperature" class="temperature">--°C</p>
+          <p id="weather-condition" class="weather-condition">Condition: --</p>
+          <p class="feels-like">Feels like <span id="feels-like">--°C</span></p>
+        </div>
+      </div>
+
+      <dl class="details-grid">
+        <div class="detail-item">
+          <dt class="detail-label">Humidity</dt>
+          <dd id="humidity" class="detail-value">--%</dd>
+        </div>
+        <div class="detail-item">
+          <dt class="detail-label">Wind Speed</dt>
+          <dd id="wind-speed" class="detail-value">-- m/s</dd>
+        </div>
+      </dl>
+
+    </section>
+
+    <!-- ===== 5-DAY FORECAST ===== -->
+    <section id="forecast" class="forecast-section" aria-labelledby="forecast-heading">
+      <h2 id="forecast-heading" class="forecast-heading">5-Day Forecast</h2>
+
+      <div id="forecast-container" class="forecast-container">
+
+        <article class="forecast-card">
+          <h3 class="forecast-day">Day 1</h3>
+          <div class="forecast-icon" aria-hidden="true">☁️</div>
+          <p class="forecast-condition">Condition: --</p>
+          <p class="forecast-temps">
+            <span class="forecast-temp-min">Min: --°C</span>
+            <span class="forecast-temp-max">Max: --°C</span>
+          </p>
+        </article>
+
+        <article class="forecast-card">
+          <h3 class="forecast-day">Day 2</h3>
+          <div class="forecast-icon" aria-hidden="true">☁️</div>
+          <p class="forecast-condition">Condition: --</p>
+          <p class="forecast-temps">
+            <span class="forecast-temp-min">Min: --°C</span>
+            <span class="forecast-temp-max">Max: --°C</span>
+          </p>
+        </article>
+
+        <article class="forecast-card">
+          <h3 class="forecast-day">Day 3</h3>
+          <div class="forecast-icon" aria-hidden="true">☁️</div>
+          <p class="forecast-condition">Condition: --</p>
+          <p class="forecast-temps">
+            <span class="forecast-temp-min">Min: --°C</span>
+            <span class="forecast-temp-max">Max: --°C</span>
+          </p>
+        </article>
+
+        <article class="forecast-card">
+          <h3 class="forecast-day">Day 4</h3>
+          <div class="forecast-icon" aria-hidden="true">☁️</div>
+          <p class="forecast-condition">Condition: --</p>
+          <p class="forecast-temps">
+            <span class="forecast-temp-min">Min: --°C</span>
+            <span class="forecast-temp-max">Max: --°C</span>
+          </p>
+        </article>
+
+        <article class="forecast-card">
+          <h3 class="forecast-day">Day 5</h3>
+          <div class="forecast-icon" aria-hidden="true">☁️</div>
+          <p class="forecast-condition">Condition: --</p>
+          <p class="forecast-temps">
+            <span class="forecast-temp-min">Min: --°C</span>
+            <span class="forecast-temp-max">Max: --°C</span>
+          </p>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p class="footer-brand">☀️ Atmosly &copy; 2026</p>
+    <p class="footer-tagline">Weather data powered by OpenWeather.</p>
+  </footer>
+
+</body>
+</html>
