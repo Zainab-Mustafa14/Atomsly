@@ -1,0 +1,1617 @@
+/* ==========================================================
+   ATMOSLY: style.css  (weather-reactive sky edition)
+    0. Registered properties   8. Weather details
+    1. Variables               9. Five-day forecast
+    2. Reset & base           10. Footer
+    3. Sky scenes             11. Dark-sky text adjustments
+    4. Weather effect layers  12. Entrance animation
+    5. Header                 13. Responsive
+    6. City search            14. Accessibility preferences
+    7. Messages & current card
+   ========================================================== */
+
+
+/* ---------- 0. REGISTERED PROPERTIES ----------
+   Registering colour variables lets the browser fade smoothly between
+   them. Browsers without support simply switch colours instantly. */
+@property --clear-top    { syntax: "<color>"; inherits: true; initial-value: #7db4f2; }
+@property --clear-mid    { syntax: "<color>"; inherits: true; initial-value: #bcd8f6; }
+@property --clear-bottom { syntax: "<color>"; inherits: true; initial-value: #ffe5c6; }
+@property --cloud-top    { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.92); }
+@property --cloud-bottom { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.5); }
+@property --bank-color   { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.35); }
+
+
+/* ---------- 1. VARIABLES ---------- */
+:root {
+  /* Palette */
+  --blue-100: #e3eeff;
+  --blue-500: #5b8def;
+  --blue-600: #3570e0;
+  --blue-700: #2858b8;
+  --violet-100: #eee8ff;
+  --violet-500: #8b6cf6;
+  --violet-600: #6a47e6;
+  --violet-700: #5436c4;
+  --cyan-400: #4fd3f0;
+
+  --color-bg: #dfe8ff;
+  --color-surface: #ffffff;
+  --color-text: #1b2142;
+  --color-muted: #4a5276;
+  --color-border: #d3dcf5;
+
+  --color-error-bg: rgba(255, 241, 243, 0.92);
+  --color-error-border: #f0a9b6;
+  --color-error-text: #a81f3a;
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, var(--blue-600), var(--violet-600));
+  --gradient-brand-deep: linear-gradient(135deg, #2350b0, #5030c0);
+  --gradient-soft: linear-gradient(135deg, var(--blue-100), var(--violet-100));
+
+  /* Glass surfaces */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.74);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --blur: 16px;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 10px rgba(45, 65, 150, 0.1);
+  --shadow-md: 0 12px 32px rgba(45, 65, 150, 0.18);
+  --shadow-lg: 0 20px 50px rgba(60, 50, 160, 0.22);
+
+  /* Typography */
+  --font-main: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Motion */
+  --transition: 0.25s ease;
+}
+
+/* If the browser cannot blur what is behind a card, make cards more opaque
+   so text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-bg-strong: rgba(255, 255, 255, 0.92);
+  }
+}
+
+
+/* ---------- 2. RESET & BASE ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* The hidden attribute must always win, even when a class sets display */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  isolation: isolate;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
+  /* Defaults for the clear-sky palette (temperature classes override these) */
+  --sun-strength: 0.85;
+  transition: --clear-top 1.4s ease, --clear-mid 1.4s ease, --clear-bottom 1.4s ease;
+}
+
+.dashboard {
+  flex: 1;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg) var(--space-lg);
+}
+
+/* Shared glass look for the main surfaces */
+.search-form,
+.current-weather,
+.forecast-card,
+.site-footer {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
+  backdrop-filter: blur(var(--blur)) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md), var(--glass-highlight);
+}
+
+/* Gradient text with a solid fallback */
+.brand-name {
+  color: var(--blue-700);
+}
+
+.temperature {
+  color: var(--violet-600);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .brand-name {
+    background: var(--gradient-brand-deep);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .temperature {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+
+/* ---------- 3. SKY SCENES ----------
+   The whole sky sits behind the page and never receives clicks.
+   script.js puts these classes on <body>:
+     wx-clear | wx-partly | wx-clouds | wx-rain | wx-storm | wx-snow | wx-fog
+     temp-hot | temp-warm | temp-mild | temp-cold
+     is-night, is-dark-sky, has-weather                                    */
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+/* Default sky (before the first successful search) */
+.sky-base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(165deg, #bfe0ff 0%, #a9c4ff 38%, #c3b4ff 72%, #e6dcff 100%);
+}
+
+/* Each scene is a full-screen gradient that cross-fades in.
+   The scene that is leaving stays solid for 1.4s (delayed transition) while
+   the new one, which sits above it (z-index 2), fades in on top. This avoids
+   the default sky showing through in the middle of a transition. */
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0s linear 1.4s;
+}
+
+/* Clear: colours come from the temperature classes below */
+.scene-clear {
+  background: linear-gradient(180deg, var(--clear-top) 0%, var(--clear-mid) 55%, var(--clear-bottom) 100%);
+}
+
+/* Partly cloudy: bright blue sky */
+.scene-partly {
+  background: linear-gradient(180deg, #86b6ee 0%, #b4d3f3 55%, #e6f0fa 100%);
+}
+
+/* Overcast: muted grey-blue */
+.scene-clouds {
+  background: linear-gradient(180deg, #9fb0c6 0%, #b9c6d6 50%, #d9e1ea 100%);
+}
+
+/* Rain: blue-grey, deep blue, slate */
+.scene-rain {
+  background: linear-gradient(180deg, #2f4568 0%, #4a6080 50%, #6f829e 100%);
+}
+
+/* Thunderstorm: darker and heavier */
+.scene-storm {
+  background: linear-gradient(180deg, #1c2640 0%, #303d58 50%, #4b5873 100%);
+}
+
+/* Snow: icy blue and white */
+.scene-snow {
+  background: linear-gradient(180deg, #8fb0d8 0%, #bdd3ec 50%, #e4eef9 100%);
+}
+
+/* Fog / mist: soft grey and pale blue */
+.scene-fog {
+  background: linear-gradient(180deg, #b6c0cd 0%, #ccd4de 50%, #e4e9ef 100%);
+}
+
+/* Night: deep navy into indigo (any condition) */
+.scene-night {
+  background: linear-gradient(180deg, #060a22 0%, #101846 50%, #2a2670 100%);
+}
+
+/* Which scene is visible */
+body.wx-clear:not(.is-night) .scene-clear,
+body.wx-partly:not(.is-night) .scene-partly,
+body.wx-clouds:not(.is-night) .scene-clouds,
+body.wx-rain:not(.is-night) .scene-rain,
+body.wx-storm:not(.is-night) .scene-storm,
+body.wx-snow:not(.is-night) .scene-snow,
+body.wx-fog:not(.is-night) .scene-fog,
+body.is-night .scene-night {
+  opacity: 1;
+  z-index: 2;
+  transition: opacity 1.4s ease;
+}
+
+/* A thin colour wash on top of the scene for small adjustments:
+   night weather moods, and warm/cool tints on cloudy days */
+.scene-wash {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 1.4s ease;
+}
+
+body.wx-clouds.temp-hot:not(.is-night) .scene-wash  { background-color: rgba(255, 175, 95, 0.14); }
+body.wx-partly.temp-hot:not(.is-night) .scene-wash  { background-color: rgba(255, 190, 110, 0.08); }
+body.wx-clouds.temp-cold:not(.is-night) .scene-wash { background-color: rgba(120, 165, 225, 0.12); }
+
+body.is-night.wx-clouds .scene-wash { background-color: rgba(70, 80, 120, 0.35); }
+body.is-night.wx-rain .scene-wash   { background-color: rgba(50, 70, 110, 0.4); }
+body.is-night.wx-storm .scene-wash  { background-color: rgba(18, 22, 52, 0.5); }
+body.is-night.wx-snow .scene-wash   { background-color: rgba(140, 160, 210, 0.28); }
+body.is-night.wx-fog .scene-wash    { background-color: rgba(120, 130, 170, 0.35); }
+
+/* Temperature palette for clear skies (also sets the sun's strength) */
+body.temp-hot {
+  --clear-top: #ff8a3d;
+  --clear-mid: #ffb35c;
+  --clear-bottom: #ffe2b8;
+  --sun-strength: 1;
+}
+
+body.temp-warm {
+  --clear-top: #ffa94d;
+  --clear-mid: #ffcf86;
+  --clear-bottom: #ffecd2;
+  --sun-strength: 0.95;
+}
+
+body.temp-mild {
+  --clear-top: #7db4f2;
+  --clear-mid: #bcd8f6;
+  --clear-bottom: #ffe5c6;
+  --sun-strength: 0.85;
+}
+
+body.temp-cold {
+  --clear-top: #9fc4ec;
+  --clear-mid: #cfe2f6;
+  --clear-bottom: #eef5fb;
+  --sun-strength: 0.6;
+}
+
+/* Ambient glows belong to the default sky only */
+.sky-glow {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  transition: opacity 1.4s ease;
+}
+
+body.has-weather .sky-glow {
+  opacity: 0;
+  animation-play-state: paused;
+}
+
+.sky-glow-blue {
+  width: 70vmax;
+  height: 70vmax;
+  top: -25vmax;
+  left: -18vmax;
+  background: radial-gradient(circle, rgba(70, 130, 255, 0.45), transparent 65%);
+  animation: glow-drift-a 36s ease-in-out infinite alternate;
+}
+
+.sky-glow-violet {
+  width: 65vmax;
+  height: 65vmax;
+  top: 10%;
+  right: -24vmax;
+  background: radial-gradient(circle, rgba(150, 110, 255, 0.45), transparent 65%);
+  animation: glow-drift-b 44s ease-in-out infinite alternate;
+}
+
+.sky-glow-cyan {
+  width: 60vmax;
+  height: 60vmax;
+  bottom: -32vmax;
+  left: 8%;
+  background: radial-gradient(circle, rgba(80, 220, 255, 0.42), transparent 65%);
+  animation: glow-drift-c 40s ease-in-out infinite alternate;
+}
+
+@keyframes glow-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(8vmax, 6vmax, 0) scale(1.12); }
+}
+
+@keyframes glow-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.05); }
+  to   { transform: translate3d(-9vmax, 5vmax, 0) scale(0.95); }
+}
+
+@keyframes glow-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(0.95); }
+  to   { transform: translate3d(7vmax, -6vmax, 0) scale(1.1); }
+}
+
+
+/* ---------- 4. WEATHER EFFECT LAYERS ----------
+   Every layer starts hidden. script.js adds .is-active to the layers that
+   match the current weather, and .is-running while they should animate
+   (it stays on for a moment during the fade-out, then pauses to save work). */
+.fx {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.2s ease, visibility 0s linear 1.2s;
+}
+
+.fx.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.fx:not(.is-running),
+.fx:not(.is-running)::before,
+.fx:not(.is-running)::after,
+.fx:not(.is-running) *,
+.fx:not(.is-running) *::before,
+.fx:not(.is-running) *::after {
+  animation-play-state: paused !important;
+}
+
+
+/* --- Sun (clear and partly cloudy days) --- */
+.fx-sun {
+  --sun-size: clamp(5.5rem, 13vw, 8.5rem);
+}
+
+.sun-wrap {
+  position: absolute;
+  top: 7%;
+  right: 11%;
+  width: var(--sun-size);
+  height: var(--sun-size);
+  opacity: var(--sun-strength, 1);
+  transition: opacity 1.4s ease;
+}
+
+body.wx-partly .sun-wrap {
+  opacity: calc(var(--sun-strength, 1) * 0.75);
+}
+
+.sun-halo {
+  position: absolute;
+  inset: -130%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 170, 0.7) 0%, rgba(255, 205, 110, 0.28) 28%, transparent 62%);
+  animation: sun-pulse 9s ease-in-out infinite alternate;
+}
+
+.sun-rays {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120vmax;
+  height: 120vmax;
+  margin: -60vmax 0 0 -60vmax;
+  background: repeating-conic-gradient(rgba(255, 240, 180, 0.3) 0deg 4deg, transparent 4deg 14deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 50%);
+  mask-image: radial-gradient(circle, #000 0%, transparent 50%);
+  animation: rays-spin 120s linear infinite;
+  will-change: transform;
+}
+
+body.wx-partly .sun-rays {
+  opacity: 0.45;
+}
+
+.sun-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #fffdf0 0%, #fff0a8 35%, #ffc93c 78%, #ffb020 100%);
+  box-shadow: 0 0 40px 14px rgba(255, 205, 90, 0.65), 0 0 120px 50px rgba(255, 170, 70, 0.35);
+  animation: sun-breathe 10s ease-in-out infinite alternate;
+}
+
+body.temp-hot .sun-core {
+  box-shadow: 0 0 50px 18px rgba(255, 190, 70, 0.75), 0 0 150px 70px rgba(255, 140, 50, 0.4);
+}
+
+@keyframes sun-pulse {
+  from { transform: scale(1);    opacity: 0.8; }
+  to   { transform: scale(1.1);  opacity: 1; }
+}
+
+@keyframes sun-breathe {
+  from { transform: scale(1); }
+  to   { transform: scale(1.05); }
+}
+
+@keyframes rays-spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* --- Moon and stars (clear and partly cloudy nights) --- */
+.moon {
+  position: absolute;
+  top: 9%;
+  right: 13%;
+  width: clamp(3.8rem, 9vw, 6rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 32%, #fffef5 0%, #eef0ff 45%, #c5cdf2 100%);
+  box-shadow: 0 0 30px 6px rgba(215, 225, 255, 0.55), 0 0 110px 36px rgba(150, 165, 255, 0.28);
+  animation: moon-float 14s ease-in-out infinite alternate;
+}
+
+/* Soft craters */
+.moon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 14% 14% at 62% 30%, rgba(150, 160, 205, 0.4), transparent),
+    radial-gradient(ellipse 18% 18% at 38% 62%, rgba(150, 160, 205, 0.32), transparent),
+    radial-gradient(ellipse 10% 10% at 70% 68%, rgba(150, 160, 205, 0.3), transparent);
+}
+
+@keyframes moon-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-7px); }
+}
+
+/* Stars are created by script.js and positioned with CSS variables */
+.star {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.55);
+  opacity: var(--o);
+  animation: star-twinkle var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+@keyframes star-twinkle {
+  from { opacity: 0.15; }
+  to   { opacity: var(--o); }
+}
+
+
+/* --- Clouds (colour and visibility depend on the weather) --- */
+.fx-clouds {
+  transition:
+    opacity 1.2s ease,
+    visibility 0s linear 1.2s,
+    --cloud-top 1.4s ease,
+    --cloud-bottom 1.4s ease,
+    --bank-color 1.4s ease;
+}
+
+body.wx-clouds .fx-clouds {
+  --cloud-top: rgba(214, 221, 232, 0.96);
+  --cloud-bottom: rgba(160, 172, 192, 0.7);
+  --bank-color: rgba(140, 152, 176, 0.6);
+}
+
+body.wx-rain .fx-clouds {
+  --cloud-top: rgba(138, 150, 176, 0.96);
+  --cloud-bottom: rgba(88, 100, 130, 0.8);
+  --bank-color: rgba(70, 82, 112, 0.65);
+}
+
+body.wx-storm .fx-clouds {
+  --cloud-top: rgba(88, 98, 126, 0.97);
+  --cloud-bottom: rgba(46, 54, 80, 0.88);
+  --bank-color: rgba(30, 38, 62, 0.75);
+}
+
+body.wx-snow .fx-clouds {
+  --cloud-top: rgba(236, 242, 250, 0.95);
+  --cloud-bottom: rgba(200, 212, 230, 0.65);
+  --bank-color: rgba(196, 208, 228, 0.55);
+}
+
+body.is-night.wx-partly .fx-clouds {
+  --cloud-top: rgba(120, 130, 175, 0.7);
+  --cloud-bottom: rgba(70, 80, 125, 0.6);
+  --bank-color: rgba(70, 80, 125, 0.4);
+}
+
+body.is-night.wx-clouds .fx-clouds {
+  --cloud-top: rgba(105, 115, 155, 0.85);
+  --cloud-bottom: rgba(60, 70, 110, 0.75);
+  --bank-color: rgba(55, 65, 105, 0.6);
+}
+
+body.is-night.wx-rain .fx-clouds {
+  --cloud-top: rgba(80, 92, 130, 0.9);
+  --cloud-bottom: rgba(45, 55, 95, 0.8);
+  --bank-color: rgba(40, 50, 90, 0.65);
+}
+
+body.is-night.wx-storm .fx-clouds {
+  --cloud-top: rgba(55, 62, 96, 0.95);
+  --cloud-bottom: rgba(28, 34, 62, 0.9);
+  --bank-color: rgba(22, 28, 55, 0.75);
+}
+
+body.is-night.wx-snow .fx-clouds {
+  --cloud-top: rgba(150, 165, 205, 0.8);
+  --cloud-bottom: rgba(100, 115, 165, 0.65);
+  --bank-color: rgba(100, 115, 165, 0.5);
+}
+
+.cloud {
+  position: absolute;
+  left: 0;
+  width: 220px;
+  height: 70px;
+  background: linear-gradient(to bottom, var(--cloud-top), var(--cloud-bottom));
+  border-radius: 100px;
+  box-shadow: 0 10px 30px var(--bank-color);
+  animation: cloud-drift var(--dur) linear infinite;
+  animation-delay: var(--delay);
+  will-change: transform;
+}
+
+.cloud::before,
+.cloud::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.cloud::before {
+  width: 90px;
+  height: 90px;
+  top: -42px;
+  left: 32px;
+}
+
+.cloud::after {
+  width: 120px;
+  height: 120px;
+  top: -62px;
+  right: 28px;
+}
+
+/* Each cloud has its own height, size, speed, and depth */
+.cloud-1 { top: 7%;  --s: 1;    --dur: 130s; --delay: -20s;  opacity: 0.9; }
+.cloud-2 { top: 20%; --s: 0.7;  --dur: 170s; --delay: -110s; opacity: 0.6; }
+.cloud-3 { top: 38%; --s: 1.3;  --dur: 150s; --delay: -70s;  opacity: 0.7; }
+.cloud-4 { top: 58%; --s: 0.85; --dur: 190s; --delay: -150s; opacity: 0.5; }
+.cloud-5 { top: 75%; --s: 1.5;  --dur: 210s; --delay: -40s;  opacity: 0.4; }
+
+@keyframes cloud-drift {
+  from { transform: translate3d(-340px, 0, 0) scale(var(--s)); }
+  to   { transform: translate3d(calc(100vw + 340px), 0, 0) scale(var(--s)); }
+}
+
+/* Wide, soft cloud banks that make overcast skies look heavy.
+   They only appear for overcast, rain, storm and snow. */
+.cloud-bank {
+  position: absolute;
+  left: -20vw;
+  width: 140vw;
+  height: 46vh;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 22% 38% at 12% 40%, var(--bank-color), transparent 70%),
+    radial-gradient(ellipse 26% 42% at 38% 30%, var(--bank-color), transparent 70%),
+    radial-gradient(ellipse 24% 36% at 64% 45%, var(--bank-color), transparent 70%),
+    radial-gradient(ellipse 28% 40% at 88% 32%, var(--bank-color), transparent 70%);
+  transition: opacity 1.4s ease;
+  animation: bank-drift 80s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.bank-1 { top: -6vh; }
+
+.bank-2 {
+  top: 16vh;
+  animation-duration: 120s;
+  animation-direction: alternate-reverse;
+}
+
+body.wx-clouds .cloud-bank,
+body.wx-rain .cloud-bank,
+body.wx-storm .cloud-bank,
+body.wx-snow .cloud-bank {
+  opacity: 1;
+}
+
+@keyframes bank-drift {
+  from { transform: translate3d(-8vw, 0, 0); }
+  to   { transform: translate3d(8vw, 0, 0); }
+}
+
+
+/* --- Heat shimmer (hot, clear daytime only) --- */
+.fx-heat {
+  top: auto;
+  bottom: 0;
+  height: 38%;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, transparent 100%);
+}
+
+.fx-heat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255, 150, 50, 0.3), transparent 80%);
+}
+
+/* Soft stripes rise slowly while wobbling sideways, like warm air */
+.heat-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: -36px;
+  background: repeating-linear-gradient(
+    to top,
+    rgba(255, 243, 205, 0.2) 0 7px,
+    rgba(255, 205, 130, 0.07) 7px 22px,
+    transparent 22px 36px
+  );
+  animation: heat-rise 5s linear infinite, heat-wobble 3.4s ease-in-out infinite alternate;
+}
+
+.heat-wave-2 {
+  opacity: 0.6;
+  animation-duration: 8s, 5.1s;
+  animation-direction: normal, alternate-reverse;
+}
+
+@keyframes heat-rise {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, -36px, 0); }
+}
+
+@keyframes heat-wobble {
+  from { translate: -5px 0; }
+  to   { translate: 5px 0; }
+}
+
+
+/* --- Fog / mist: tiled soft ellipses that drift sideways --- */
+.fx-fog {
+  --mist-color: rgba(255, 255, 255, 0.55);
+}
+
+body.is-night .fx-fog {
+  --mist-color: rgba(160, 170, 220, 0.32);
+}
+
+.mist {
+  position: absolute;
+  left: 0;
+  width: 200vw;
+  background-image: radial-gradient(ellipse 60% 52% at 50% 55%, var(--mist-color), transparent 72%);
+  background-size: 50vw 100%;
+  background-repeat: repeat-x;
+  animation: mist-drift var(--dur) linear infinite;
+  will-change: transform;
+}
+
+.mist-1 { bottom: 0;    height: 46vh; --dur: 95s; }
+.mist-2 { bottom: 16vh; height: 40vh; --dur: 140s; animation-direction: reverse; opacity: 0.8; }
+.mist-3 { top: 10vh;    height: 36vh; --dur: 180s; opacity: 0.6; }
+
+@keyframes mist-drift {
+  to { transform: translate3d(-50vw, 0, 0); }
+}
+
+
+/* --- Floating particles (default, clear and partly cloudy days) --- */
+.sky-particles {
+  position: absolute;
+  inset: 0;
+  animation: twinkle 9s ease-in-out infinite alternate;
+}
+
+.sky-particles::before,
+.sky-particles::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.sky-particles::before {
+  height: calc(100% + 420px);
+  background-image:
+    radial-gradient(circle 2px at 40px 60px, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(circle 3px at 220px 140px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(circle 1.5px at 340px 300px, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(circle 2.5px at 120px 360px, rgba(255, 255, 255, 0.65), transparent);
+  background-size: 420px 420px;
+  animation: particles-rise-a 80s linear infinite;
+}
+
+.sky-particles::after {
+  height: calc(100% + 610px);
+  background-image:
+    radial-gradient(circle 4px at 90px 120px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(circle 2px at 410px 70px, rgba(220, 210, 255, 0.8), transparent),
+    radial-gradient(circle 3px at 300px 450px, rgba(200, 235, 255, 0.7), transparent),
+    radial-gradient(circle 2px at 520px 330px, rgba(255, 255, 255, 0.75), transparent);
+  background-size: 610px 610px;
+  animation: particles-rise-b 130s linear infinite;
+}
+
+@keyframes particles-rise-a {
+  to { transform: translate3d(0, -420px, 0); }
+}
+
+@keyframes particles-rise-b {
+  to { transform: translate3d(0, -610px, 0); }
+}
+
+@keyframes twinkle {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
+}
+
+
+/* --- Rain (drops are created by script.js) ---
+   Intensity changes how many drops show and how fast they fall. */
+.raindrop {
+  position: absolute;
+  top: 0;
+  left: calc(var(--x) * 1%);
+  width: 2px;
+  height: var(--h);
+  border-radius: 2px;
+  background: linear-gradient(to bottom, rgba(215, 230, 255, 0), rgba(225, 238, 255, var(--o)));
+  animation: rain-fall calc(var(--dur) * var(--rain-speed, 1)) linear var(--delay) infinite;
+}
+
+.fx-rain[data-intensity="light"]  { --rain-speed: 1.15; }
+.fx-rain[data-intensity="heavy"]  { --rain-speed: 0.8; }
+
+.fx-rain[data-intensity="light"] .raindrop { width: 1px; }
+.fx-rain[data-intensity="light"] .raindrop:nth-child(n+31)  { display: none; }
+.fx-rain[data-intensity="medium"] .raindrop:nth-child(n+66) { display: none; }
+
+@keyframes rain-fall {
+  from { transform: translate3d(0, -20vh, 0) rotate(12deg); }
+  to   { transform: translate3d(-26vh, 125vh, 0) rotate(12deg); }
+}
+
+
+/* --- Snow (flakes are created by script.js) --- */
+.snowflake {
+  position: absolute;
+  top: 0;
+  left: calc(var(--x) * 1%);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, var(--o));
+  box-shadow: 0 0 5px rgba(80, 120, 190, 0.4);
+  animation:
+    snow-fall calc(var(--dur) * var(--snow-speed, 1)) linear var(--delay) infinite,
+    snow-sway var(--sway) ease-in-out var(--delay) infinite alternate;
+}
+
+.fx-snow[data-intensity="light"] { --snow-speed: 1.2; }
+.fx-snow[data-intensity="heavy"] { --snow-speed: 0.8; }
+
+.fx-snow[data-intensity="light"] .snowflake:nth-child(n+31)  { display: none; }
+.fx-snow[data-intensity="medium"] .snowflake:nth-child(n+56) { display: none; }
+
+@keyframes snow-fall {
+  from { transform: translate3d(0, -8vh, 0); }
+  to   { transform: translate3d(var(--drift), 108vh, 0); }
+}
+
+@keyframes snow-sway {
+  from { translate: -14px 0; }
+  to   { translate: 14px 0; }
+}
+
+
+/* --- Lightning (thunderstorms only): one soft, diffuse flash pair about
+   every 19 seconds. Two quick flashes at most, never constant. --- */
+.fx-lightning::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse 75% 55% at 40% 0%, rgba(225, 235, 255, 0.75), rgba(170, 185, 255, 0.22) 50%, transparent 78%);
+  animation: lightning-flash 19s ease-out infinite;
+}
+
+@keyframes lightning-flash {
+  0%, 88%, 100% { opacity: 0; }
+  89%           { opacity: 0.9; }
+  90.3%         { opacity: 0.15; }
+  91.6%         { opacity: 0.7; }
+  95%           { opacity: 0; }
+}
+
+
+/* ---------- 5. HEADER ---------- */
+.site-header {
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg) var(--space-lg);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin: 0;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  font-size: 1.8rem;
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(255, 214, 120, 0.45), var(--glass-highlight);
+  animation: float-y 6s ease-in-out infinite;
+}
+
+.brand-name {
+  font-size: clamp(2.1rem, 6vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  filter: drop-shadow(0 2px 10px rgba(255, 255, 255, 0.55));
+}
+
+.tagline {
+  margin: var(--space-xs) 0 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #2c3458;
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+
+/* ---------- 6. CITY SEARCH ---------- */
+.search-section {
+  margin-bottom: var(--space-lg);
+}
+
+.search-form {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.search-form:focus-within {
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-lg), 0 0 0 4px rgba(255, 255, 255, 0.35), var(--glass-highlight);
+}
+
+.search-label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+}
+
+.search-controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.95rem 1.2rem;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 3px rgba(45, 65, 150, 0.12);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.search-input::placeholder {
+  color: #6d759a;
+}
+
+.search-input:hover {
+  border-color: rgba(91, 141, 239, 0.55);
+}
+
+.search-input:focus {
+  background: #ffffff;
+  border-color: var(--violet-600);
+  box-shadow: 0 0 0 4px rgba(106, 71, 230, 0.22), 0 8px 24px rgba(106, 71, 230, 0.18);
+  outline: 2px solid transparent; /* stays visible in high-contrast mode */
+}
+
+.search-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 0.95rem 1.9rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--gradient-brand);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 18px rgba(80, 55, 200, 0.4);
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+}
+
+/* Soft light sweep on hover */
+.search-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+
+.search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(80, 55, 200, 0.45);
+  filter: brightness(1.06);
+}
+
+.search-button:hover::after {
+  transform: translateX(120%);
+}
+
+.search-button:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 3px 10px rgba(80, 55, 200, 0.35);
+}
+
+.search-button:focus-visible {
+  outline: 3px solid var(--violet-700);
+  outline-offset: 3px;
+}
+
+.search-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+
+/* ---------- 7. MESSAGES & CURRENT WEATHER CARD ---------- */
+.message {
+  margin: 0 0 var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.95rem;
+  text-align: center;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow-wrap: anywhere;
+}
+
+.message-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--blue-700);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(195, 215, 251, 0.9);
+}
+
+/* Small CSS spinner shown next to the loading text */
+.message-loading::before {
+  content: "";
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(53, 112, 224, 0.25);
+  border-top-color: var(--blue-600);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.message-error {
+  color: var(--color-error-text);
+  font-weight: 500;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-left: 5px solid var(--color-error-text);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Current weather card */
+.current-weather {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--glass-bg-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
+}
+
+/* Glossy light and a violet glow, drawn behind the text */
+.current-weather::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(139, 108, 246, 0.26), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(79, 211, 240, 0.2), transparent 50%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.5), transparent 45%);
+}
+
+.current-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.city-name {
+  margin: 0;
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.current-date {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+
+.current-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+
+.weather-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: clamp(5.5rem, 22vw, 8rem);
+  aspect-ratio: 1;
+  font-size: clamp(3rem, 11vw, 4.5rem);
+  line-height: 1;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  box-shadow: 0 10px 28px rgba(80, 70, 190, 0.2), var(--glass-highlight);
+  animation: float-y 7s ease-in-out infinite;
+}
+
+/* The icon image added by JavaScript */
+.weather-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(45, 65, 150, 0.25));
+}
+
+.current-summary {
+  flex: 1;
+  min-width: 0;
+}
+
+.temperature {
+  margin: 0;
+  font-size: clamp(3.25rem, 11vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.weather-condition {
+  margin: var(--space-xs) 0 var(--space-sm);
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.feels-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-pill);
+}
+
+.feels-like span {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+
+/* ---------- 8. WEATHER DETAILS ---------- */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin: 0;
+}
+
+/* No blur here: the parent card already blurs the background */
+.detail-item {
+  padding: var(--space-md);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.detail-item:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-md), var(--glass-highlight);
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.detail-value {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+
+/* ---------- 9. FIVE-DAY FORECAST ---------- */
+.forecast-heading {
+  margin: 0 0 var(--space-lg);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.forecast-heading::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 4px;
+  margin-top: var(--space-xs);
+  background: var(--gradient-brand-deep);
+  border-radius: var(--radius-pill);
+}
+
+.forecast-container {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.forecast-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-lg) var(--space-sm);
+  text-align: center;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+}
+
+/* Accent line that grows across the top on hover */
+.forecast-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.forecast-card:hover {
+  transform: translateY(-6px);
+  background: var(--glass-bg-strong);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-lg), var(--glass-highlight);
+}
+
+.forecast-card:hover::before {
+  transform: scaleX(1);
+}
+
+.forecast-day {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--violet-700);
+}
+
+.forecast-icon {
+  font-size: 2.6rem;
+  line-height: 1.2;
+}
+
+/* The icon image added by JavaScript */
+.forecast-icon img {
+  display: block;
+  width: 4.25rem;
+  height: 4.25rem;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(45, 65, 150, 0.22));
+}
+
+.forecast-condition {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+
+.forecast-temps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  margin: var(--space-xs) 0 0;
+}
+
+.forecast-temp-min,
+.forecast-temp-max {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+}
+
+.forecast-temp-min {
+  color: var(--blue-700);
+  background: rgba(227, 238, 255, 0.9);
+}
+
+.forecast-temp-max {
+  color: var(--violet-700);
+  background: rgba(238, 232, 255, 0.9);
+}
+
+
+/* ---------- 10. FOOTER ---------- */
+.site-footer {
+  padding: var(--space-lg);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.45);
+  border-width: 1px 0 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.footer-brand {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.footer-tagline {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+
+/* ---------- 11. DARK-SKY ADJUSTMENTS ----------
+   Rain, storms and every night scene are dark. Text that sits directly on
+   the sky (header, forecast heading, footer) switches to light colours, and
+   the glass cards become a little more opaque so their text stays readable. */
+body.is-dark-sky {
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-bg-strong: rgba(255, 255, 255, 0.86);
+}
+
+.is-dark-sky .brand-name {
+  color: #ffffff;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .is-dark-sky .brand-name {
+    background: linear-gradient(135deg, #ffffff, #c9d4ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.is-dark-sky .brand-name {
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.35));
+}
+
+.is-dark-sky .tagline {
+  color: #e3e8ff;
+}
+
+.is-dark-sky .forecast-heading {
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.is-dark-sky .forecast-heading::after {
+  background: linear-gradient(90deg, #ffffff, #b9c6ff);
+}
+
+.is-dark-sky .site-footer {
+  background: rgba(8, 12, 36, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.is-dark-sky .footer-brand {
+  color: #ffffff;
+}
+
+.is-dark-sky .footer-tagline {
+  color: #d5dbf5;
+}
+
+
+/* ---------- 12. ENTRANCE ANIMATION ---------- */
+/* "backwards" applies the start state only, so hover effects keep working */
+.search-form,
+.current-weather,
+.forecast-heading,
+.forecast-card {
+  animation: rise-in 0.7s ease-out backwards;
+}
+
+.current-weather { animation-delay: 0.1s; }
+.forecast-heading { animation-delay: 0.2s; }
+
+.forecast-card:nth-child(1) { animation-delay: 0.25s; }
+.forecast-card:nth-child(2) { animation-delay: 0.32s; }
+.forecast-card:nth-child(3) { animation-delay: 0.39s; }
+.forecast-card:nth-child(4) { animation-delay: 0.46s; }
+.forecast-card:nth-child(5) { animation-delay: 0.53s; }
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ---------- 13. RESPONSIVE ---------- */
+
+/* Tablets: forecast becomes 3 + 2 */
+@media (max-width: 900px) {
+  .forecast-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Large phones: forecast becomes 2 columns, search stacks, effects get lighter */
+@media (max-width: 600px) {
+  :root {
+    --blur: 10px;
+  }
+
+  .dashboard {
+    padding: 0 var(--space-md) var(--space-md);
+  }
+
+  .site-header {
+    padding: var(--space-lg) var(--space-md) var(--space-md);
+  }
+
+  .search-form,
+  .current-weather {
+    padding: var(--space-md);
+  }
+
+  .search-controls {
+    flex-direction: column;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .forecast-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  /* The fifth card sits alone on the last row, so let it span full width */
+  .forecast-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* Fewer background elements on small screens */
+  .cloud-4,
+  .cloud-5,
+  .sky-particles::after,
+  .bank-2,
+  .mist-3 {
+    display: none;
+  }
+
+  .raindrop:nth-child(n+61)  { display: none; }
+  .snowflake:nth-child(n+41) { display: none; }
+  .star:nth-child(n+36)      { display: none; }
+
+  .fx-heat {
+    height: 30%;
+  }
+
+  .sun-wrap {
+    top: 5%;
+    right: 8%;
+  }
+
+  .moon {
+    top: 6%;
+    right: 9%;
+  }
+}
+
+/* Small phones: current weather stacks and centers */
+@media (max-width: 420px) {
+  .current-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .current-main {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .details-grid {
+    gap: var(--space-sm);
+  }
+
+  .detail-item {
+    padding: var(--space-sm);
+  }
+}
+
+
+/* ---------- 14. ACCESSIBILITY PREFERENCES ---------- */
+
+/* Reduced motion: no animations or transitions. The sky becomes a calm
+   still picture: clouds sit at fixed positions, and rain, snow and stars
+   are shown as a static, lighter pattern. Heat shimmer is removed. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .search-button:hover,
+  .detail-item:hover,
+  .forecast-card:hover {
+    transform: none;
+  }
+
+  .cloud { transform: scale(var(--s)); }
+  .cloud-1 { left: 6%; }
+  .cloud-2 { left: 60%; }
+  .cloud-3 { left: 30%; }
+  .cloud-4 { left: 75%; }
+  .cloud-5 { left: 10%; }
+
+  .raindrop {
+    transform: translate3d(0, calc(var(--y) * 1vh), 0) rotate(12deg);
+  }
+
+  .snowflake {
+    transform: translate3d(0, calc(var(--y) * 1vh), 0);
+  }
+
+  .raindrop:nth-child(n+41)  { display: none; }
+  .snowflake:nth-child(n+31) { display: none; }
+
+  .fx-heat {
+    display: none;
+  }
+}
+
+body.temp-cold .scene {
+  filter: saturate(0.8);
+}
+
+/* For people who ask the system for less transparency: nearly solid cards */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  body.is-dark-sky {
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-bg-strong: rgba(255, 255, 255, 0.97);
+  }
+
+  :root {
+    --blur: 0px;
+  }
+}
